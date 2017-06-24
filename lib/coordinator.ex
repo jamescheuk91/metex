@@ -6,7 +6,7 @@ defmodule Metex.Coordinator do
         new_results = [result | results]
         results_count = Enum.count(new_results)
         if results_expected == results_count do
-          send self, :exit
+          send self(), :exit
         end
         loop(new_results, results_expected)
       :exit ->
@@ -14,6 +14,8 @@ defmodule Metex.Coordinator do
         IO.puts(formatted_results)
       _ ->
         loop(results, results_expected)
+    after
+      1_000 -> loop(results, results_expected)
     end
   end
 

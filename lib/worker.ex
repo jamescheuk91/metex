@@ -1,14 +1,16 @@
 defmodule Metex.Worker do
   require Logger
-  
+
   def loop do
     receive do
       {sender_pid, location} ->
         send(sender_pid, {:ok, temperature_of(location)})
       _ ->
         Logger.info "don't know how to process this message"
+
+    after
+      1_000 -> loop()
     end
-    loop()
   end
 
   def temperature_of(location) do
