@@ -1,6 +1,6 @@
 defmodule Metex.Worker do
-  import Logger
-
+  require Logger
+  
   def loop do
     receive do
       {sender_pid, location} ->
