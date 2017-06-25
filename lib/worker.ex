@@ -2,10 +2,12 @@ defmodule Metex.Worker do
   use GenServer
   require Logger
 
+  @name MW
+
   ## Client API
 
   def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, :ok, opts)
+    GenServer.start_link(__MODULE__, :ok, opts ++ [name: @name])
   end
 
   def init(:ok) do
@@ -22,24 +24,29 @@ defmodule Metex.Worker do
     :ok
   end
 
-  def get_state(pid) do
-    GenServer.call(pid, :get_state)
+  def get_state do
+    GenServer.call(@name, :get_state)
   end
 
-  def reset_state(pid) do
-    GenServer.cast(pid, :reset_state)
+  def reset_state do
+    GenServer.cast(@name, :reset_state)
   end
 
-  def get_temperature(pid, location) do
-    GenServer.call(pid, {:location, location})
+  def get_temperature(location) do
+    GenServer.call(@name, {:location, location})
   end
 
-  def stop(pid) do
-    GenServer.cast(pid, :stop)
+  def stop do
+    GenServer.cast(@name, :stop)
   end
 
   ## Server API
   ## GenServer Callbacks
+
+  def handle_info(msg, state) do
+    Logger.info "received #{inspect msg}"
+    {:noreply, state}
+  end
 
   def handle_call(:get_state, _from, state) do
     {:reply, state, state}
@@ -64,20 +71,7 @@ defmodule Metex.Worker do
     {:stop, :normal, state}
   end
 
-
   ## Helper Functions
-
-  # def loop do
-  #   receive do
-  #     {sender_pid, location} ->
-  #       send(sender_pid, {:ok, temperature_of(location)})
-  #     _ ->
-  #       Logger.info "don't know how to process this message"
-  #
-  #   after
-  #     1_000 -> loop()
-  #   end
-  # end
 
   defp temperature_of(location) do
     url_for(location) |> HTTPoison.get |> parse_repsonse
