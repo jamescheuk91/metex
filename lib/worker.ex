@@ -20,6 +20,10 @@ defmodule Metex.Worker do
     GenServer.call(pid, :get_state)
   end
 
+  def reset_state(pid) do
+    GenServer.cast(pid, :reset_state)
+  end
+
   def get_temperature(pid, location) do
     GenServer.call(pid, {:location, location})
   end
@@ -39,6 +43,11 @@ defmodule Metex.Worker do
       _ ->
         {:reply, :error, state}
     end
+  end
+
+  def handle_cast(:reset_state, _state) do
+    new_state = %{}
+    {:noreply, new_state}
   end
 
 
