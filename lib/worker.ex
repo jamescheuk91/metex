@@ -16,6 +16,12 @@ defmodule Metex.Worker do
     {:ok, state}
   end
 
+  def terminate(reason, state) do
+    Logger.info "server state: #{inspect state}"
+    Logger.info "server terminate due to #{reason} reason"
+    :ok
+  end
+
   def get_state(pid) do
     GenServer.call(pid, :get_state)
   end
@@ -26,6 +32,10 @@ defmodule Metex.Worker do
 
   def get_temperature(pid, location) do
     GenServer.call(pid, {:location, location})
+  end
+
+  def stop(pid) do
+    GenServer.cast(pid, :stop)
   end
 
   ## Server API
@@ -48,6 +58,10 @@ defmodule Metex.Worker do
   def handle_cast(:reset_state, _state) do
     new_state = %{}
     {:noreply, new_state}
+  end
+
+  def handle_cast(:stop, state) do
+    {:stop, :normal, state}
   end
 
 
