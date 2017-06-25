@@ -16,8 +16,8 @@ defmodule Metex do
     :world
   end
 
-  def temperature_of(cities) do
-    cities_count = Enum.count(cities)
+  def temperature_of(%MapSet{} = cities) do
+    cities_count = MapSet.size(cities)
     coodinator_pid = spawn(Metex.Coordinator, :loop, [[], cities_count])
     cities |> Enum.each(fn(city) ->
       worker_pid = spawn(Metex.Worker, :loop, [])
